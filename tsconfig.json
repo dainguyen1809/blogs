@@ -21,12 +21,9 @@
     "pretty": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "plugins": [
-      { "transform": "typescript-transform-paths" },
-      { "transform": "typescript-transform-paths", "afterDeclarations": true }
-    ],
+    "plugins": [{ "transform": "typescript-transform-paths" }, { "transform": "typescript-transform-paths", "afterDeclarations": true }],
     "paths": {
-      "@notifications/*": ["src/*"]
+      "@src/*": ["src/*"]
     }
   },
   "include": ["src/**/*"],

@@ -1,0 +1,83 @@
+services:
+  redis:
+    container_name: redis_container
+    image: redis:alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --loglevel warning
+    volumes:
+      - ./data/cache:/data
+
+  postgres:
+    container_name: postgres_container
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - '5433:5432'
+    volumes:
+      - ./data/postgres:/var/lib/postgresql
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq_container
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+
+  elasticsearch:
+    container_name: elasticsearch_container
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.0
+    restart: always
+    environment:
+      ES_JAVA_OPTS: -Xmx1g -Xms1g
+      bootstrap.memory_lock: 'true'
+      discovery.type: single-node
+      # network.host: 0.0.0.0
+      # transport.host: 127.0.0.1
+      # http.host: 0.0.0.0
+      xpack.security.enabled: 'false'
+      xpack.security.authc.api_key.enabled: 'true'
+      xpack.monitoring.collection.enabled: 'true'
+      xpack.security.enrollment.enabled: 'true'
+      # xpack.security.authc.token.enabled: 'true'
+      # ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    ports:
+      - 9300:9300
+      - 9200:9200
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
+  kibana:
+    container_name: kibana_container
+    image: docker.elastic.co/kibana/kibana:9.0.0
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=["http://elasticsearch_container:9200"]
+      # - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      # - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      # - ELASTICSEARCH_SERVICEACCOUNT_TOKEN=${ELASTICSEARCH_SERVICEACCOUNT_TOKEN}
+      # - XPACK_FLEET_AGENTS_ELASTICSEARCH_HOSTS=["http://elasticsearch_container:9200"]
+    ports:
+      - 5601:5601
+    networks:
+      - elastic
+    volumes:
+      - ./kibana.yml/:/usr/share/kibana/config/kibana.yml:ro
+    depends_on:
+      - elasticsearch
+
+networks:
+  elastic:
+    name: elastic

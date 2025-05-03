@@ -4,7 +4,7 @@ const config: Config.InitialOptions = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   verbose: true,
-  coverageDirectory: 'coverage',
+  coverageDirectory: 'src/tests/coverage',
   collectCoverage: true,
   testPathIgnorePatterns: ['/node_modules'],
   transform: {
@@ -22,7 +22,7 @@ const config: Config.InitialOptions = {
   },
   coverageReporters: ['text-summary', 'lcov'],
   moduleNameMapper: {
-    '@notifications/(.*)': ['<rootDir>/src/$1']
+    '@src/(.*)': ['<rootDir>/src/$1']
   }
 };
 
