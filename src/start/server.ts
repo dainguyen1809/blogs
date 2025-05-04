@@ -1,11 +1,15 @@
-import app from '@src/start/app';
+import { winstonLogger } from '@src/core/utils/helpers';
+import { config } from '@src/infra/configs';
+import { Logger } from 'winston';
+import { start } from './app';
+import express, { Express } from 'express';
 
-const PORT = process.env.APP_PORT || 3005;
+const log: Logger = winstonLogger(`${config.ELASTICSEARCH_URL}`, '[ Application ]', 'debug');
 
-const server = app.listen(PORT, () => {
-  console.log(`Server is listening ${PORT}`);
-});
+const initialize = (): void => {
+  const app: Express = express();
+  start(app);
+  log.info(`[ Server ] Initialized successfully ✅`);
+};
 
-process.on('SIGINT', () => {
-  server.close(() => console.log(`Server Exit!`));
-});
+initialize();
